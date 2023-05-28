@@ -1,0 +1,36 @@
+version: "3.5"
+networks:
+  project-net:
+    driver: bridge
+    name: project_net
+services:
+  db:
+    networks:
+      - project-net
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_USER: db_user
+      POSTGRES_PASSWORD: db_password
+      POSTGRES_DB: db_name
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    networks:
+      - project-net
+    environment:
+      DATABASE_HOST: db
+      DATABASE_USER: db_user
+      DATABASE_PORT: 5432
+      DATABASE_PASSWORD: db_password
+      DATABASE_NAME: db_name
